@@ -1,21 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-let client;
-
-async function getCollection(uri, dbName) {
-  if (!client) {
-    client = new MongoClient(uri, {
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-      },
-    });
-  }
-  await client.connect();
-  return client.db(dbName).collection("news");
-}
-
 export async function onRequestGet(context) {
   const { MONGODB_URI, MONGODB_DATABASE } = context.env;
 
@@ -32,18 +16,35 @@ export async function onRequestGet(context) {
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "30")));
   const skip = (page - 1) * limit;
 
+  const client = new MongoClient(MONGODB_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      deprecationErrors: true,
+    },
+    connectTimeoutMS: 10000,
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 15000,
+  });
+
   try {
-    const col = await getCollection(MONGODB_URI, MONGODB_DATABASE || "only_news");
+    await client.connect();
+
+    const col = client.db(MONGODB_DATABASE || "only_news").collection("news");
 
     const filter = {};
     if (category) filter.category = category;
 
-    const articles = await col
+    const docs = await col
       .find(filter, { projection: { url_hash: 0 } })
       .sort({ published_at: -1 })
       .skip(skip)
       .limit(limit)
       .toArray();
+
+    const articles = docs.map((doc) => ({
+      ...doc,
+      _id: doc._id?.toString(),
+    }));
 
     return new Response(JSON.stringify({ articles }), {
       headers: {
@@ -52,10 +53,15 @@ export async function onRequestGet(context) {
       },
     });
   } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: "Database error" }), {
-      status: 502,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("Worker error:", err?.message ?? err);
+    return new Response(
+      JSON.stringify({ error: "Database error", detail: err?.message }),
+      {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } finally {
+    await client.close().catch(() => {});
   }
 }
