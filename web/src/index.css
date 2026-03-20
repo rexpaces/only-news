@@ -1,0 +1,255 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #f8f8f6;
+  --surface: #ffffff;
+  --border: #e4e4df;
+  --text: #19191a;
+  --text-secondary: #6a6a66;
+  --cat-bg: #efefeb;
+  --cat-text: #4a4a46;
+  --cat-active-bg: #19191a;
+  --cat-active-text: #f8f8f6;
+  --cat-hover: var(--cat-hover);
+}
+
+:root.dark {
+  --bg: #111110;
+  --surface: #1c1c1a;
+  --border: #2e2e2b;
+  --text: #e8e8e4;
+  --text-secondary: #888880;
+  --cat-bg: #262622;
+  --cat-text: #b0b0a8;
+  --cat-active-bg: #e8e8e4;
+  --cat-active-text: #111110;
+  --cat-hover: #303030;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.header-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 3px 8px;
+  line-height: 1;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--text-secondary);
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
+}
+
+.tagline {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ── Main layout ── */
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── Category filter ── */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 18px 0 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cat-btn {
+  background: var(--cat-bg);
+  color: var(--cat-text);
+  border: none;
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  font-family: inherit;
+}
+
+.cat-btn:hover {
+  background: var(--cat-hover);
+}
+
+.cat-btn.active {
+  background: var(--cat-active-bg);
+  color: var(--cat-active-text);
+}
+
+/* ── News list ── */
+.news-section {
+  margin-top: 4px;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── News card ── */
+.news-card {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.badge {
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge-category {
+  background: var(--cat-bg);
+  color: var(--cat-text);
+}
+
+.badge-region {
+  background: #e8eeff;
+  color: #3b5bdb;
+}
+
+:root.dark .badge-region {
+  background: #1e2a4a;
+  color: #7b9cef;
+}
+
+.card-source {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.card-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.card-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+
+.card-title:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Misc ── */
+.empty,
+.status-msg {
+  text-align: center;
+  padding: 40px 0 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.load-more {
+  display: block;
+  margin: 28px auto 0;
+  background: var(--cat-bg);
+  color: var(--cat-text);
+  border: none;
+  border-radius: 6px;
+  padding: 9px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.load-more:hover {
+  background: var(--cat-hover);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .header-inner {
+    padding: 12px 16px;
+  }
+
+  main {
+    padding: 0 16px 60px;
+  }
+
+  .card-date {
+    display: none;
+  }
+}

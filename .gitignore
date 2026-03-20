@@ -1,0 +1,17 @@
+# Python
+collector/.env
+collector/__pycache__/
+collector/*.pyc
+collector/venv/
+collector/.venv/
+.venv/
+
+# Node
+web/node_modules/
+web/dist/
+web/.env
+web/.env.local
+
+# General
+.DS_Store
+*.log
