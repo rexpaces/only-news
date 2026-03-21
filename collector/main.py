@@ -18,8 +18,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 HTML_TAG_RE = re.compile(r"<[^>]+>")
-ITEMS_PER_CATEGORY_FEED = 20
-ITEMS_PER_REGION_FEED = 10
+
+# Maximum new articles inserted per category per run.
+# Prevents any single category from dominating a run.
+MAX_PER_CATEGORY = 5
+MAX_PER_REGION = 3
+
+# How many entries to read from each individual feed.
+ITEMS_PER_CATEGORY_FEED = 3
+ITEMS_PER_REGION_FEED = 3
+
 OLLAMA_DELAY = 0.3
 
 
@@ -73,32 +81,39 @@ def process_feed_entry(entry, region: str, source: str) -> bool:
 def collect_all_feeds():
     logger.info("=== Collecting category feeds ===")
     for category, urls in CATEGORY_FEEDS.items():
+        category_count = 0
         for feed_url in urls:
+            if category_count >= MAX_PER_CATEGORY:
+                logger.info(f"[{category}] reached limit of {MAX_PER_CATEGORY}, skipping remaining feeds")
+                break
             logger.info(f"Fetching [{category}] {feed_url}")
             try:
                 feed = feedparser.parse(feed_url)
                 source = feed.feed.get("title", feed_url)
-                count = 0
                 for entry in feed.entries[:ITEMS_PER_CATEGORY_FEED]:
+                    if category_count >= MAX_PER_CATEGORY:
+                        break
                     if process_feed_entry(entry, "Global", source):
-                        count += 1
-                logger.info(f"  Inserted {count} new articles locally")
+                        category_count += 1
             except Exception as e:
                 logger.error(f"Error processing feed {feed_url}: {e}")
+        logger.info(f"[{category}] inserted {category_count} new articles locally")
 
     logger.info("=== Collecting region feeds ===")
     for city, feed_url in REGION_FEEDS.items():
         logger.info(f"Fetching [{city}]")
         try:
             feed = feedparser.parse(feed_url)
-            count = 0
+            city_count = 0
             for entry in feed.entries[:ITEMS_PER_REGION_FEED]:
+                if city_count >= MAX_PER_REGION:
+                    break
                 source = "Google News"
                 if hasattr(entry, "source") and isinstance(entry.source, dict):
                     source = entry.source.get("title", "Google News")
                 if process_feed_entry(entry, city, source):
-                    count += 1
-            logger.info(f"  Inserted {count} new articles locally")
+                    city_count += 1
+            logger.info(f"  [{city}] inserted {city_count} new articles locally")
         except Exception as e:
             logger.error(f"Error processing region {city}: {e}")
 
